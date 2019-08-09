@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() => runApp(MyApp());
 
@@ -49,18 +50,25 @@ class _MyHomePageState extends State<MyHomePage> {
   String name;
   void _incrementCounter() {
     setState(() {
-      
       FirebaseAuth.instance.signInAnonymously().then((authResult) {
         name = authResult.uid;
         print(name);
-      }
-      );
+        onAuthenticationComplete();
+      });
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+    });
+  }
+
+  void onAuthenticationComplete() {
+    Firestore.instance
+        .collection('rooms')
+        .add({'name': 'Test Room 2 Again', 'creator': name}).then((doc) {
+      print('Saved doc: ${doc.documentID}');
     });
   }
 

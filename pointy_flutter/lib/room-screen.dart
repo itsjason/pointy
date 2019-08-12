@@ -29,7 +29,7 @@ class _RoomPageState extends State<RoomPage> {
     );
 
     return Container(
-      child: Column(children: [Text('Room: ${room.name}')]),
+      child: Column(children: [Text('Room: $room')]),
     );
   }
 }

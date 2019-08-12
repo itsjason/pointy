@@ -7,7 +7,7 @@ class Room {
 
   String id;
 	String name;
-	DateTime createdAt;
+	Timestamp createdAt;
 	String ownerId;
 	List<String> users;
 

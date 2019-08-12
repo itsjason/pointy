@@ -1,4 +1,4 @@
 name:String
-createdAt:DateTime
+createdAt:Timestamp
 ownerId:String
 users:List<String>

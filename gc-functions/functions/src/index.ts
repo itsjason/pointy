@@ -37,18 +37,17 @@ exports.createRoom = functions.https.onCall(async (data: any, context: CallableC
         'createdAt': new Date()
     }).catch(onError);
 
-    console.log(`Room created: ${room}`)
+    console.log(`Room created`, room)
 
     if (!isDocumentReference(room)) {
         return { error: true }
     }
 
-    await room.collection('users')
+    const writeResult = await room.collection('users')
         .doc(user.uid)
         .set({ 'createdAt': new Date(), 'uid': user.uid })
 
-    console.log("createRoom() Complete!");
-    console.error("Error when creating room for user:", user);
+    console.log("createRoom() Complete!", writeResult);
 
     return {
         'roomId': room!.id

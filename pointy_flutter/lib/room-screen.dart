@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'data-types/room.dart';
 
 class RoomPage extends StatefulWidget {
@@ -18,27 +15,21 @@ class _RoomPageState extends State<RoomPage> {
   //   FutureBuilder()
   // }
 
+  Room room;
+
   @override
   Widget build(BuildContext context) {
+    final self = this;
+
     var roomId = widget.roomId;
-
-StreamTransformer.fromHandlers(handleData: (QuerySnapshot snapshot, EventSink sink) {
-
-      var result = Map<String, Reward>();
-
-      snapshot.documents.forEach((doc) {
-
-        result[doc.documentID] = Reward.fromMap(doc.documentID, doc.data);
-
-      });
-
-      sink.add(result);
-
-    })
-    var room = Firestore.instance.document('rooms/$roomId').snapshots().transform(Room.getTransformer());
+    Room.getDocumentStream(Firestore.instance, "rooms/$roomId").forEach((r) => 
+      self.setState(() {
+        this.room = r;
+      })
+    );
 
     return Container(
-      child: Column(children: [Text('Room: [Room Name]')]),
+      child: Column(children: [Text('Room: ${room.name}')]),
     );
   }
 }

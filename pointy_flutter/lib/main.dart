@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pointy_flutter/create-room-screen.dart';
-import 'package:pointy_flutter/room-screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,20 +27,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   String name;
   
-  void _incrementCounter() {
-    setState(() {
-      FirebaseAuth.instance.signInAnonymously().then((authResult) {
-        name = authResult.uid;
-        print(name);
-        onAuthenticationComplete();
-      });
-      _counter++;
-    });
-  }
-
   void onAuthenticationComplete() {
     Firestore.instance
         .collection('rooms')

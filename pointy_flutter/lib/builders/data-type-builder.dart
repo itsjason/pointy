@@ -73,13 +73,38 @@ class $typeName {
   @override
   String toString() => "$typeName<id:\$id>";
 
-  static StreamTransformer<DocumentSnapshot, $typeName> getTransformer() => StreamTransformer.fromHandlers(handleData: (QuerySnapshot snapshot, EventSink sink) {
-      var result = Map<String, $typeName>();
-      snapshot.documents.forEach((doc) {
-        result[doc.documentID] = $typeName.fromMap(doc.documentID, doc.data);
-      });
+  static StreamTransformer<DocumentSnapshot, $typeName> getTransformer() {
+    final trans = StreamTransformer.fromHandlers(
+        handleData: (DocumentSnapshot snapshot, EventSink<$typeName> sink) {
+      if (snapshot.data == null) return;
+
+      final result = $typeName.fromMap(snapshot.documentID, snapshot.data);
       sink.add(result);
     });
+    return trans;
+  }
+
+  static Stream<$typeName> getDocumentStream(Firestore firestore, String path) {
+    final transformer =
+        firestore.document(path).snapshots().transform(getTransformer());
+    return transformer;
+  }
+
+  static Stream<Map<String, $typeName>> getCollectionStream(
+      Firestore firestore, String path) {
+    final transformer = firestore.collection(path).snapshots().transform(
+        StreamTransformer.fromHandlers(handleData: handleCollectionTransform));
+    return transformer;
+  }
+
+  static void handleCollectionTransform(
+      QuerySnapshot snapshot, EventSink<Map<String, $typeName>> sink) {
+    var result = Map<String, $typeName>();
+    snapshot.documents.forEach((doc) {
+      result[doc.documentID] = $typeName.fromMap(doc.documentID, doc.data);
+    });
+    sink.add(result);
+  }
 }
     ''';
 

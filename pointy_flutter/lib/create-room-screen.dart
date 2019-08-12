@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:pointy_flutter/room-screen.dart';
@@ -40,8 +39,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 var roomName = textEditingController.value.text;
                 var createRoomResult = await CloudFunctions.instance
                   .getHttpsCallable(functionName: 'createRoom')
-                  .call(roomName);
-
+                  .call({ 'roomName': roomName }); //Actually ignoring the name param for now?
                   String roomId = createRoomResult.data.roomId;
                   Navigator.of(context).push(MaterialPageRoute(builder: (c) => new RoomPage(roomId: roomId)));
               },

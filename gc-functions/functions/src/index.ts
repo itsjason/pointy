@@ -29,11 +29,8 @@ exports.createRoom = functions.https.onCall(async (data: any, context: CallableC
 
     const firestore = admin.firestore()
     const roomsCollection = firestore.collection('rooms')
-
-    var user = context.auth!;
-
-    var roomName = words[Math.random() * words.length]
-
+    const user = context.auth!;
+    const roomName = words[Math.floor(Math.random() * words.length)]
     const room = await roomsCollection.add({
         'name': roomName,
         'ownerId': user.uid,
@@ -42,16 +39,20 @@ exports.createRoom = functions.https.onCall(async (data: any, context: CallableC
 
     console.log(`Room created: ${room}`)
 
-    if (isDocumentReference(room)) {
-        await room.collection('users')
-            .doc(user.uid)
-            .set({ 'createdAt': new Date(), 'uid': user.uid })
-
-        console.log("createRoom() Complete!");
-    } else {
-        console.error("Error when creating room for user:", user);
+    if (!isDocumentReference(room)) {
+        return { error: true }
     }
 
+    await room.collection('users')
+        .doc(user.uid)
+        .set({ 'createdAt': new Date(), 'uid': user.uid })
+
+    console.log("createRoom() Complete!");
+    console.error("Error when creating room for user:", user);
+
+    return {
+        'roomId': room!.id
+    }
 })
 
 function isDocumentReference(result: void | DocumentReference): result is DocumentReference {
@@ -138,6 +139,7 @@ exports.initializeUser = functions.auth.user().onCreate(async (user, context) =>
 
     // Create and save the user object
     const userData = {
+        'uid': user.uid,
         'email': user.email,
         'displayName': user.displayName,
         'photoUrl': user.photoURL,

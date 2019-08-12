@@ -27,12 +27,37 @@ class Member {
   @override
   String toString() => "Member<id:$id>";
 
-  static StreamTransformer<DocumentSnapshot, Member> getTransformer() => StreamTransformer.fromHandlers(handleData: (QuerySnapshot snapshot, EventSink sink) {
-      var result = Map<String, Member>();
-      snapshot.documents.forEach((doc) {
-        result[doc.documentID] = Member.fromMap(doc.documentID, doc.data);
-      });
+  static StreamTransformer<DocumentSnapshot, Member> getTransformer() {
+    final trans = StreamTransformer.fromHandlers(
+        handleData: (DocumentSnapshot snapshot, EventSink<Member> sink) {
+      if (snapshot.data == null) return;
+
+      final result = Member.fromMap(snapshot.documentID, snapshot.data);
       sink.add(result);
     });
+    return trans;
+  }
+
+  static Stream<Member> getDocumentStream(Firestore firestore, String path) {
+    final transformer =
+        firestore.document(path).snapshots().transform(getTransformer());
+    return transformer;
+  }
+
+  static Stream<Map<String, Member>> getCollectionStream(
+      Firestore firestore, String path) {
+    final transformer = firestore.collection(path).snapshots().transform(
+        StreamTransformer.fromHandlers(handleData: handleCollectionTransform));
+    return transformer;
+  }
+
+  static void handleCollectionTransform(
+      QuerySnapshot snapshot, EventSink<Map<String, Member>> sink) {
+    var result = Map<String, Member>();
+    snapshot.documents.forEach((doc) {
+      result[doc.documentID] = Member.fromMap(doc.documentID, doc.data);
+    });
+    sink.add(result);
+  }
 }
     

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pointy_flutter/create-room-screen.dart';
+import 'package:pointy_flutter/room-screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -61,7 +63,12 @@ class _MyHomePageState extends State<MyHomePage> {
             Image.asset('assets/finger1.png', width: 400, ),
             Text('Pointy', style: Theme.of(context).textTheme.display4.copyWith(color: Colors.black, )),
             SizedBox(height: 40,),
-            FlatButton(child: Text('Create', style: buttonStyle), onPressed: () {},),
+            FlatButton(child: Text('Create', style: buttonStyle), onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreateRoomScreen())
+              );
+            },),
             SizedBox(height: 40,),
             FlatButton(child: Text('Join', style: buttonStyle), onPressed: () {},)
           ],

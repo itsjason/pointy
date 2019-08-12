@@ -1,0 +1,4 @@
+name:String
+createdAt:DateTime
+ownerId:String
+users:List<String>

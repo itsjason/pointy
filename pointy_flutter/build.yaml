@@ -1,0 +1,9 @@
+# Read about `build.yaml` at https://pub.dev/packages/build_config
+builders:
+  simple:
+    import: "package:pointy_flutter/builders/data-type-builder.dart"
+    builder_factories:
+      - simpleBuilder
+    build_extensions: {'.data':['.dart']}
+    auto_apply: all_packages
+    build_to: source

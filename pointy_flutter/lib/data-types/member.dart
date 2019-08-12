@@ -6,23 +6,20 @@ import 'dart:async';
 class Member {
 
   String id;
-	String name;
-	String imageUrl;
-	String currentVote;
+	Timestamp createdAt;
+	String uid;
 
-	Member({this.name, this.imageUrl, this.currentVote});
+	Member({this.createdAt, this.uid});
 
   Member.fromMap(String id, Map<dynamic, dynamic> map)
       : id = id,
-      name = map['name'],
-			imageUrl = map['imageUrl'],
-			currentVote = map['currentVote'];
+      createdAt = map['createdAt'],
+			uid = map['uid'];
 
   Map<String, dynamic> toMap() => {
     "id": this.id, 
-    "name": this.name,
-		"imageUrl": this.imageUrl,
-		"currentVote": this.currentVote  };
+    "createdAt": this.createdAt,
+		"uid": this.uid  };
 
   @override
   String toString() => "Member<id:$id>";

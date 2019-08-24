@@ -18,6 +18,14 @@ const onError = function (reason: any) {
     console.log(`Error: ${reason}`);
 }
 
+const getWord = function(): string {
+    return words[Math.floor(Math.random() * words.length)]
+}
+
+const getJoinedWords = function(): string {
+    return `${getWord()} ${getWord()}`
+}
+
 exports.createRoom = functions.https.onCall(async (data: any, context: CallableContext) => {
     if (context.auth === null) {
         console.log(`Got unauthed call in createRoom`, data, context)
@@ -30,7 +38,7 @@ exports.createRoom = functions.https.onCall(async (data: any, context: CallableC
     const firestore = admin.firestore()
     const roomsCollection = firestore.collection('rooms')
     const user = context.auth!;
-    const roomName = words[Math.floor(Math.random() * words.length)]
+    const roomName = getJoinedWords()
     const room = await roomsCollection.add({
         'name': roomName,
         'ownerId': user.uid,
@@ -45,12 +53,44 @@ exports.createRoom = functions.https.onCall(async (data: any, context: CallableC
 
     const writeResult = await room.collection('users')
         .doc(user.uid)
-        .set({ 'createdAt': new Date(), 'uid': user.uid })
+        .set({ 'createdAt': new Date(), 'uid': user.uid, name: data.userName })
 
     console.log("createRoom() Complete!", writeResult);
 
     return {
         'roomId': room!.id
+    }
+})
+
+exports.joinRoom = functions.https.onCall(async (data: any, context: CallableContext) => {
+    if (context.auth === null) {
+        console.log(`Got unauthed call in joinRoom`, data, context)
+        response.status(401).send('Unauthorized')
+        return
+    }
+
+    if (!data || !data.roomId) {
+        console.log("Got empty roomId", data, context)
+        response.status(401).send('Unauthorized')
+        return
+    }
+
+    console.log(`Got good call in joinRoom`, data, context)
+
+    const firestore = admin.firestore()
+    const roomDoc = await firestore.doc("rooms/" + data.roomId).get()
+    if(roomDoc === null) {
+        return { success: false, message: `Room ${data.roomId} not found`}
+    }
+
+    const writeResult = await firestore.collection(`rooms/${data.roomId}/users`).doc(context.auth!.uid).set(
+        { createdAt: Date.now, name: data.userName, uid: context.auth!.uid }
+    )
+
+    console.log("joinRoom() Complete!", writeResult);
+
+    return {
+        'roomId': roomDoc!.id
     }
 })
 

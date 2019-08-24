@@ -27,31 +27,35 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     );
   }
 
-  Column getBody(BuildContext context) {
-    return Column(
-        children: <Widget>[
-          Text('Create Room'),
-          TextField(
-            controller: textEditingController,
-            decoration: InputDecoration(hintText: 'Room Name'),
-          ),
-          RaisedButton(
-            child: Text('Create Room'),
-            onPressed: () async {
-              // Invoke CreateRoom function
-              // Parameters: name: stirng
-              // Logic: Create room object. Add User to room users list
-              // Return: string: Room ID
-              var roomName = textEditingController.value.text;
-              var createRoomResult = await CloudFunctions.instance
-                .getHttpsCallable(functionName: 'createRoom')
-                .call({ 'roomName': roomName }); //Actually ignoring the name param for now?
-                Map<dynamic, dynamic> returnValue = createRoomResult.data;
-                String roomId = returnValue['roomId'];
-                Navigator.of(context).push(MaterialPageRoute(builder: (c) => new RoomPage(roomId: roomId)));
-            },
-          )
-        ],
-      );
+  Widget getBody(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(50),
+      child: Column(
+          children: <Widget>[
+            Text('Create Room'),
+            TextField(
+              controller: textEditingController,
+              decoration: InputDecoration(hintText: 'Your Name'),
+             autofocus: true, 
+            ),
+            RaisedButton(
+              child: Text('Create Room'),
+              onPressed: () async {
+                // Invoke CreateRoom function
+                // Parameters: name: stirng
+                // Logic: Create room object. Add User to room users list
+                // Return: string: Room ID
+                var userName = textEditingController.value.text;
+                var createRoomResult = await CloudFunctions.instance
+                  .getHttpsCallable(functionName: 'createRoom')
+                  .call({ 'userName': userName }); //Actually ignoring the name param for now?
+                  Map<dynamic, dynamic> returnValue = createRoomResult.data;
+                  String roomId = returnValue['roomId'];
+                  Navigator.of(context).push(MaterialPageRoute(builder: (c) => new RoomPage(roomId: roomId)));
+              },
+            )
+          ],
+        ),
+    );
   }
 }

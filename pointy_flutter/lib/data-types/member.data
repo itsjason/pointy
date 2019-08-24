@@ -1,2 +1,3 @@
 createdAt:Timestamp
 uid:String
+name:String

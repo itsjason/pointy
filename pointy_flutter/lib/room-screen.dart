@@ -17,7 +17,7 @@ class _RoomPageState extends State<RoomPage> {
   // }
 
   Room room;
-  String roomName = "UNKNOEN";
+  String roomName = "UNKNOWN";
   Map<String, Member> members = Map();
 
   @override
@@ -35,13 +35,16 @@ class _RoomPageState extends State<RoomPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text(roomName),),
-      body: Column(children: [
-        Text('Room: $room'),
-        ListView.builder(
-            itemCount: members.length,
-            itemBuilder: (c, i) => Text(members.entries.toList()[i].value.uid),
-            shrinkWrap: true)
-      ]),
+      body: Container(
+        margin: EdgeInsets.all(50),
+        child: Column(children: [
+          Text('Room: $room'),
+          ListView.builder(
+              itemCount: members.length,
+              itemBuilder: (c, i) => Text(members.entries.toList()[i].value.name ?? "NO Name", style: Theme.of(context).textTheme.display1,),
+              shrinkWrap: true)
+        ]),
+      ),
     );
   }
 }

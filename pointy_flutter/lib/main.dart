@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pointy_flutter/create-room-screen.dart';
+import 'package:pointy_flutter/join-room-screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -62,7 +63,12 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },),
             SizedBox(height: 40,),
-            FlatButton(child: Text('Join', style: buttonStyle), onPressed: () {},)
+            FlatButton(child: Text('Join', style: buttonStyle), onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => JoinRoomScreen())
+              );
+            },)
           ],
         ),
       ),

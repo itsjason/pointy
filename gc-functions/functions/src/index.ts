@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import { CallableContext } from 'firebase-functions/lib/providers/https';
 //import { DocumentSnapshot, QuerySnapshot, DocumentReference } from '@google-cloud/firestore';
 import { response } from 'express';
-import { DocumentReference } from '@google-cloud/firestore';
+import { QuerySnapshot } from '@google-cloud/firestore';
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -18,12 +18,12 @@ const onError = function (reason: any) {
     console.log(`Error: ${reason}`);
 }
 
-const getWord = function(): string {
+const getWord = function (): string {
     return words[Math.floor(Math.random() * words.length)]
 }
 
-const getJoinedWords = function(): string {
-    return `${getWord()} ${getWord()}`
+const getJoinedWords = function (): string {
+    return `${getWord()}-${getWord()}`
 }
 
 exports.createRoom = functions.https.onCall(async (data: any, context: CallableContext) => {
@@ -39,26 +39,20 @@ exports.createRoom = functions.https.onCall(async (data: any, context: CallableC
     const roomsCollection = firestore.collection('rooms')
     const user = context.auth!;
     const roomName = getJoinedWords()
-    const room = await roomsCollection.add({
+    await roomsCollection.doc(roomName).create({
         'name': roomName,
         'ownerId': user.uid,
         'createdAt': new Date()
     }).catch(onError);
 
-    console.log(`Room created`, room)
-
-    if (!isDocumentReference(room)) {
-        return { error: true }
-    }
-
-    const writeResult = await room.collection('users')
+    const writeResult = await firestore.collection(`rooms/${roomName}/users`)
         .doc(user.uid)
         .set({ 'createdAt': new Date(), 'uid': user.uid, name: data.userName })
 
     console.log("createRoom() Complete!", writeResult);
 
     return {
-        'roomId': room!.id
+        'roomId': roomName
     }
 })
 
@@ -69,34 +63,48 @@ exports.joinRoom = functions.https.onCall(async (data: any, context: CallableCon
         return
     }
 
-    if (!data || !data.roomId) {
-        console.log("Got empty roomId", data, context)
+    if (!data || !data.roomName) {
+        console.log("Got empty roomName", data, context)
         response.status(401).send('Unauthorized')
         return
     }
 
+    const roomName: string = data.roomName;
+
     console.log(`Got good call in joinRoom`, data, context)
 
     const firestore = admin.firestore()
-    const roomDoc = await firestore.doc("rooms/" + data.roomId).get()
-    if(roomDoc === null) {
-        return { success: false, message: `Room ${data.roomId} not found`}
+
+
+    const querySnapshot = await firestore.collection('rooms').where("name", "==", data.roomName).get().catch(onError)
+
+    if (!(querySnapshot instanceof QuerySnapshot)) { 
+        console.log('querySnapshot not instanceof QuerySnapshot', querySnapshot);
+        return
     }
 
-    const writeResult = await firestore.collection(`rooms/${data.roomId}/users`).doc(context.auth!.uid).set(
-        { createdAt: Date.now, name: data.userName, uid: context.auth!.uid }
+    const docCount = querySnapshot.docs.length
+    console.log(`Found ${docCount} docs for name ${roomName}`)
+    if (docCount !== 1) {
+        return { success: false, message: `Room ${data.roomName} not found` }
+    }
+    const roomDoc = await querySnapshot.docs[0].id
+
+    const writeResult = await firestore.collection(`rooms/${roomDoc}/users`).doc(context.auth!.uid).set(
+        { createdAt: Date.now(), name: data.userName, uid: context.auth!.uid }
     )
 
     console.log("joinRoom() Complete!", writeResult);
 
     return {
-        'roomId': roomDoc!.id
+        'roomId': roomDoc,
+        'roomName': roomName
     }
 })
 
-function isDocumentReference(result: void | DocumentReference): result is DocumentReference {
-    return (<DocumentReference>result).id !== undefined;
-}
+// function isDocumentReference(result: void | DocumentReference): result is DocumentReference {
+//     return (<DocumentReference>result).id !== undefined;
+// }
 
 // exports.createInvitation = functions.https.onCall(async (data: any, context: CallableContext) => {
 //     if (context.auth === null) return;

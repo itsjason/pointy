@@ -47,12 +47,14 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
               onPressed: () async {
                 var roomName = roomNameController.value.text;
                 var userName = userNameController.value.text;
+                print("Joining room $roomName");
                 var createRoomResult = await CloudFunctions.instance
-                    .getHttpsCallable(functionName: 'createRoom')
+                    .getHttpsCallable(functionName: 'joinRoom')
                     .call({
                   'roomName': roomName,
                   'userName': userName
                 }); //Actually ignoring the name param for now?
+                print("Got result: $createRoomResult");
                 Map<dynamic, dynamic> returnValue = createRoomResult.data;
                 String roomId = returnValue['roomId'];
                 Navigator.of(context).push(MaterialPageRoute(

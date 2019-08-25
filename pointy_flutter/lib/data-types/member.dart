@@ -6,21 +6,18 @@ import 'dart:async';
 class Member {
 
   String id;
-	Timestamp createdAt;
 	String uid;
 	String name;
 
-	Member({this.createdAt, this.uid, this.name});
+	Member({ this.uid, this.name});
 
   Member.fromMap(String id, Map<dynamic, dynamic> map)
       : id = id,
-      createdAt = map['createdAt'],
 			uid = map['uid'],
 			name = map['name'];
 
   Map<String, dynamic> toMap() => {
     "id": this.id, 
-    "createdAt": this.createdAt,
 		"uid": this.uid,
 		"name": this.name  };
 

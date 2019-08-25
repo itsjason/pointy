@@ -22,28 +22,45 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    final self = this;
-
     var roomId = widget.roomId;
-    Room.getDocumentStream(Firestore.instance, "rooms/$roomId").forEach((r) =>
-        self.setState(() {
-          this.room = r;
-          this.roomName = r.name;
-          Member.getCollectionStream(Firestore.instance, 'rooms/$roomId/users')
-              .forEach((memberList) => setState(() => members = memberList));
-        }));
-
+    
     return Scaffold(
       appBar: AppBar(title: Text(roomName),),
       body: Container(
         margin: EdgeInsets.all(50),
-        child: Column(children: [
-          Text('Room: $room'),
-          ListView.builder(
-              itemCount: members.length,
-              itemBuilder: (c, i) => Text(members.entries.toList()[i].value.name ?? "NO Name", style: Theme.of(context).textTheme.display1,),
-              shrinkWrap: true)
-        ]),
+        child: StreamBuilder<Room>(
+          stream: Room.getDocumentStream(Firestore.instance, "rooms/$roomId"),
+          builder: (context, snapshot) {
+            if(!snapshot.hasData) {
+              return Text('Loading Room...', style: Theme.of(context).textTheme.display1);
+            }
+            
+            // Ok so we have a room
+            var room = snapshot.data;
+            return Column(children: [
+              Text('Room: ${room.name}'),
+              StreamBuilder<Map<String, Member>>(
+                stream: Member.getCollectionStream(Firestore.instance, 'rooms/$roomId/users'),
+                builder: (context, snapshot) {
+                  if(!snapshot.hasData) {
+                    return Text('No users');
+                  }
+
+                  var members = snapshot.data;
+
+                  return ListView.builder(
+                      itemCount: members.length,
+                      itemBuilder: (c, i) => 
+                        Text(
+                          members.entries.toList()[i].value.name ?? "NO Name", 
+                          style: Theme.of(context).textTheme.display1,
+                        ),
+                      shrinkWrap: true);
+                }
+              )
+            ]);
+          }
+        ),
       ),
     );
   }

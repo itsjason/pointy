@@ -57,10 +57,13 @@ class _RoomPageState extends State<RoomPage> {
             'Room: ${room.name}',
             style: Theme.of(context).textTheme.display1,
           ),
-          new MemberList(
-            roomId: roomId,
-            showVotes: room.isShowing,
+          Expanded(
+            child: new MemberList(
+              roomId: roomId,
+              showVotes: room.isShowing,
+            ),
           ),
+          getVotingButtons(room: room),
           getAdminButtons(room: room)
         ]);
   }
@@ -81,7 +84,17 @@ class _RoomPageState extends State<RoomPage> {
           ),
           RaisedButton(
             child: Text('Clear Votes'),
-            onPressed: () {},
+            onPressed: () async {
+              var users = await Firestore.instance
+                  .collection("rooms/${room.id}/users")
+                  .getDocuments();
+              print("Got ${users.documents.length} users");
+              users.documents
+                  .map((d) => Member.fromMap(d.documentID, d.data))
+                  .forEach((m) async => await Firestore.instance
+                      .document("rooms/${room.id}/users/${m.id}")
+                      .setData({'vote': 0}, merge: true));
+            },
           ),
         ],
       );
@@ -92,6 +105,17 @@ class _RoomPageState extends State<RoomPage> {
 
   bool isAdmin(Room room) {
     return widget.userId == room.ownerId;
+  }
+
+  Widget getVotingButtons({Room room}) {
+    return ButtonBar(
+      children: <Widget>[
+        RaisedButton(
+          child: Text('Vote!'),
+          onPressed: () {},
+        )
+      ],
+    );
   }
 }
 
@@ -116,6 +140,7 @@ class MemberList extends StatelessWidget {
           var tiles = members.values
               .map((m) => MemberTile(member: m, showVote: showVotes))
               .toList();
+
           return Wrap(
             children: tiles,
           );
@@ -137,6 +162,8 @@ class MemberTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // return Text(member.name);
     String initial = member.name.toUpperCase().substring(0, 1) ?? "?";
+    if (member.vote > 0 && !showVote) initial = "✔";
+
     String vote = member.vote == 0 ? initial : member.vote.toString();
     String textToShow = showVote ? vote : initial;
 

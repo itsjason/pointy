@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:pointy_flutter/room-screen.dart';
 
 class JoinRoomScreen extends StatefulWidget {
-  JoinRoomScreen({Key key}) : super(key: key);
+  final String userId;
+  JoinRoomScreen({Key key, this.userId}) : super(key: key);
 
   _JoinRoomScreenState createState() => _JoinRoomScreenState();
 }
@@ -58,7 +59,7 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                 Map<dynamic, dynamic> returnValue = createRoomResult.data;
                 String roomId = returnValue['roomId'];
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (c) => new RoomPage(roomId: roomId)));
+                    builder: (c) => new RoomPage(roomId: roomId, userId: widget.userId,)));
               },
             )
           ],

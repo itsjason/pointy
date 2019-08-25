@@ -30,6 +30,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String name;
   bool enabled = false;
+  String userId;
 
   _MyHomePageState() {
     login();
@@ -38,37 +39,60 @@ class _MyHomePageState extends State<MyHomePage> {
   void login() {
     FirebaseAuth.instance.signInAnonymously().then((value) {
       print("FIREBASE: $value");
-      if(value != null) {
-        setState(() => enabled = true);
+      if (value != null) {
+        setState(() {
+          enabled = true;
+          userId = value.uid;
+        });
       }
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    final TextStyle buttonStyle = Theme.of(context).textTheme.display3.copyWith(color: Colors.blueAccent);
+    final TextStyle buttonStyle =
+        Theme.of(context).textTheme.display3.copyWith(color: Colors.blueAccent);
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            SizedBox(height: 60,),
-            Image.asset('assets/finger1.png', width: 400, ),
-            Text('Pointy', style: Theme.of(context).textTheme.display4.copyWith(color: Colors.black, )),
-            SizedBox(height: 40,),
-            FlatButton(child: Text('Create', style: buttonStyle), onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CreateRoomScreen())
-              );
-            },),
-            SizedBox(height: 40,),
-            FlatButton(child: Text('Join', style: buttonStyle), onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => JoinRoomScreen())
-              );
-            },)
+            SizedBox(
+              height: 60,
+            ),
+            Image.asset(
+              'assets/finger1.png',
+              width: 400,
+            ),
+            Text('Pointy',
+                style: Theme.of(context).textTheme.display4.copyWith(
+                      color: Colors.black,
+                    )),
+            SizedBox(
+              height: 40,
+            ),
+            FlatButton(
+              child: Text('Create', style: buttonStyle),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => 
+                            CreateRoomScreen(userId: userId,)));
+              },
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            FlatButton(
+                child: Text('Join', style: buttonStyle),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => 
+                            JoinRoomScreen(userId: userId,)));
+                })
           ],
         ),
       ),

@@ -10,6 +10,28 @@ class SimpleBuilder extends Builder {
         '.data': <String>['.dart']
       };
 
+  String getFromMapAddition(String input) {
+    switch(input) {
+      case "bool":
+        return " ?? false";
+      case "int":
+        return " ?? 0";
+      default:
+        return "";
+    }
+  }
+
+  String getDefaultModifier(String input) {
+    switch(input) {
+      case "bool":
+        return " = false";
+      case "int":
+        return " = 0";
+      default:
+        return "";
+    }
+  }
+
   @override
   Future<void> build(BuildStep buildStep) async {
     final String s = buildStep.inputId.pathSegments.last.split(".").first;
@@ -43,7 +65,7 @@ class $typeName {
 ''';
   
   mappings.forEach(
-      (memberName, memberType) => output += "\t$memberType $memberName;\n");
+      (memberName, memberType) => output += "\t$memberType $memberName${getDefaultModifier(memberType)};\n");
 
     var propertiesString = mappings.entries
         .map((value) => "this.${value.key}")
@@ -55,7 +77,7 @@ class $typeName {
       : id = id,
       ''';
 
-    var mapInputs = mappings.entries.map((e) => "${e.key} = map['${e.key}']");
+    var mapInputs = mappings.entries.map((e) => "${e.key} = map['${e.key}']" + getFromMapAddition(e.value));
     output += mapInputs.join(",\n\t\t\t") + ";\n\n";
 
     output += '''

@@ -8,18 +8,21 @@ class Member {
   String id;
 	String uid;
 	String name;
+	int vote = 0;
 
-	Member({ this.uid, this.name});
+	Member({this.uid, this.name, this.vote});
 
   Member.fromMap(String id, Map<dynamic, dynamic> map)
       : id = id,
-			uid = map['uid'],
-			name = map['name'];
+      uid = map['uid'],
+			name = map['name'],
+			vote = map['vote'] ?? 0;
 
   Map<String, dynamic> toMap() => {
     "id": this.id, 
-		"uid": this.uid,
-		"name": this.name  };
+    "uid": this.uid,
+		"name": this.name,
+		"vote": this.vote  };
 
   @override
   String toString() => "Member<id:$id>";

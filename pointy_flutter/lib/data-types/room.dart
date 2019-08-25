@@ -7,25 +7,22 @@ class Room {
 
   String id;
 	String name;
-	Timestamp createdAt;
 	String ownerId;
-	List<String> users;
+	bool isShowing = false;
 
-	Room({this.name, this.createdAt, this.ownerId, this.users});
+	Room({this.name, this.ownerId, this.isShowing});
 
   Room.fromMap(String id, Map<dynamic, dynamic> map)
       : id = id,
       name = map['name'],
-			createdAt = map['createdAt'],
 			ownerId = map['ownerId'],
-			users = map['users'];
+			isShowing = map['isShowing'] ?? false;
 
   Map<String, dynamic> toMap() => {
     "id": this.id, 
     "name": this.name,
-		"createdAt": this.createdAt,
 		"ownerId": this.ownerId,
-		"users": this.users  };
+		"isShowing": this.isShowing  };
 
   @override
   String toString() => "Room<id:$id>";

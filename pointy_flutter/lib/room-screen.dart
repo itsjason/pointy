@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pointy_flutter/vote-screen.dart';
 import 'data-types/member.dart';
 import 'data-types/room.dart';
 
@@ -112,7 +113,15 @@ class _RoomPageState extends State<RoomPage> {
       children: <Widget>[
         RaisedButton(
           child: Text('Vote!'),
-          onPressed: () {},
+          onPressed: () async {
+            var result = await Navigator.of(context)
+                .push<int>(MaterialPageRoute(builder: (c) => VoteScreen()));
+            print("Got result of $result");
+
+            Firestore.instance
+                .document("rooms/${widget.roomId}/users/${widget.userId}")
+                .setData({'vote': result}, merge: true);
+          },
         )
       ],
     );
@@ -174,16 +183,24 @@ class MemberTile extends StatelessWidget {
 
     // }
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: CircleAvatar(
-        radius: 50,
-        child: Text(
-          textToShow,
-          style: Theme.of(context)
-              .textTheme
-              .display3
-              .copyWith(color: Colors.white),
+    return InkWell(
+      onTap: () {
+        final snackBar = SnackBar(content: Text(member.name));
+
+// Find the Scaffold in the widget tree and use it to show a SnackBar.
+        Scaffold.of(context).showSnackBar(snackBar);
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CircleAvatar(
+          radius: 50,
+          child: Text(
+            textToShow,
+            style: Theme.of(context)
+                .textTheme
+                .display3
+                .copyWith(color: Colors.white),
+          ),
         ),
       ),
     );

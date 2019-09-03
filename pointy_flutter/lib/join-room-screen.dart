@@ -16,51 +16,60 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text('Join Room')),
       body: Container(
+        padding: EdgeInsets.only(left: 20, right: 20, top: 10),
         constraints: BoxConstraints.expand(),
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 60),
-        padding: EdgeInsets.all(30),
-        decoration: BoxDecoration(
-            border: Border.all(
-          color: Colors.black,
-          width: 2,
-        )),
         child: Column(
           children: <Widget>[
             Text('Join Room',
-                style: Theme.of(context).textTheme.display3.copyWith(
-                      color: Colors.black,
-                    )),
-            SizedBox(height: 30),
+                style: Theme.of(context).textTheme.display1),
             TextField(
                 autofocus: true,
-                style: Theme.of(context).textTheme.display1,
+                style: Theme.of(context).textTheme.display1.copyWith(fontSize: 28),
                 controller: roomNameController,
                 decoration: InputDecoration(hintText: 'Room Name')),
             TextField(
                 autofocus: true,
-                style: Theme.of(context).textTheme.display1,
+                style: Theme.of(context).textTheme.display1.copyWith(fontSize: 28),
                 controller: userNameController,
                 decoration: InputDecoration(hintText: 'Your Name')),
-            RaisedButton(
-              color: Colors.blue,
-              child: Text("Join"),
-              onPressed: () async {
-                var roomName = roomNameController.value.text;
-                var userName = userNameController.value.text;
-                print("Joining room $roomName");
-                var createRoomResult = await CloudFunctions.instance
-                    .getHttpsCallable(functionName: 'joinRoom')
-                    .call({
-                  'roomName': roomName,
-                  'userName': userName
-                }); //Actually ignoring the name param for now?
-                print("Got result: $createRoomResult");
-                Map<dynamic, dynamic> returnValue = createRoomResult.data;
-                String roomId = returnValue['roomId'];
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (c) => new RoomPage(roomId: roomId, userId: widget.userId,)));
-              },
+                SizedBox(height: 10,),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: RaisedButton(
+                    color: Colors.blueAccent,
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                    child: Text(
+                      'Join Room',
+                      style: Theme.of(context)
+                          .textTheme
+                          .button
+                          .copyWith(fontSize: 20, color: Colors.white),
+                    ),
+                    onPressed: () async {
+                      var roomName = roomNameController.value.text;
+                      var userName = userNameController.value.text;
+                      print("Joining room $roomName");
+                      var createRoomResult = await CloudFunctions.instance
+                          .getHttpsCallable(functionName: 'joinRoom')
+                          .call({
+                        'roomName': roomName,
+                        'userName': userName
+                      }); //Actually ignoring the name param for now?
+                      print("Got result: $createRoomResult");
+                      Map<dynamic, dynamic> returnValue = createRoomResult.data;
+                      String roomId = returnValue['roomId'];
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (c) => new RoomPage(
+                                roomId: roomId,
+                                userId: widget.userId,
+                              )));
+                    },
+                  ),
+                ),
+              ],
             )
           ],
         ),

@@ -186,8 +186,6 @@ class MemberTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         final snackBar = SnackBar(content: Text(member.name));
-
-// Find the Scaffold in the widget tree and use it to show a SnackBar.
         Scaffold.of(context).showSnackBar(snackBar);
       },
       child: Padding(

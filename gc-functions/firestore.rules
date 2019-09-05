@@ -1,8 +1,31 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write;
+    match /users/{userId} {
+    	allow read: if userId == request.auth.uid
+    }
+    match /rooms/{roomId} {
+    	allow read, write: 
+        if get(/databases/$(database)/documents/rooms/$(roomId)).data.ownerId == userId
+    }
+    match /rooms/{roomId}/{document=**} {
+    	allow read, write: 
+        if exists(/databases/$(database)/documents/rooms/$(roomId)/users/$(currentUserId()))
+    }
+    match /logEntries/{document=**} {
+      allow write
     }
   }
+  
+  function existingData() {
+      return resource.data
+    }
+
+    function incomingData() {
+      return request.resource.data
+    }
+
+    function currentUserId() {
+      return request.auth.uid
+    }
 }

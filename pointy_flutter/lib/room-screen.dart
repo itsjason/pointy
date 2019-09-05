@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pointy_flutter/vote-screen.dart';
@@ -176,12 +178,14 @@ class MemberTile extends StatelessWidget {
     String vote = member.vote == 0 ? initial : member.vote.toString();
     String textToShow = showVote ? vote : initial;
 
-    // if (showVote) {
-    //     if(member.vote != 0)
-    //      //  initial = member.vote.toString();
-    // } else {
+    final defaultSize = 50.0;
+    final defaultTextSize = 30.0;
 
-    // }
+    final voteSize = member.vote == 0 ? 30 : log(member.vote) * 30;
+    final textSize = log(member.vote + 2) * 25;
+
+    final backgroundColor = showVote ? Color.fromARGB(255, member.vote * 2 + 10, member.vote * 10 + 100, member.vote * 7 + 150) :
+      Colors.orange;
 
     return InkWell(
       onTap: () {
@@ -191,13 +195,11 @@ class MemberTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: CircleAvatar(
-          radius: 50,
+          backgroundColor: backgroundColor,
+          radius: showVote ? voteSize.toDouble() : defaultSize,
           child: Text(
             textToShow,
-            style: Theme.of(context)
-                .textTheme
-                .display3
-                .copyWith(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontSize: showVote ? textSize : defaultTextSize)
           ),
         ),
       ),

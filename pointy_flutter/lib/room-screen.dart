@@ -181,7 +181,7 @@ class MemberTile extends StatelessWidget {
     final defaultSize = 50.0;
     final defaultTextSize = 30.0;
 
-    final voteSize = member.vote == 0 ? 30 : log(member.vote) * 30;
+    final voteSize = member.vote == 0 ? 30 : log(member.vote + 1) * 30;
     final textSize = log(member.vote + 2) * 25;
 
     final backgroundColor = showVote ? Color.fromARGB(255, member.vote * 2 + 10, member.vote * 10 + 100, member.vote * 7 + 150) :

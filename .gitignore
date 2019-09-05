@@ -1,2 +1,3 @@
 certs/**
 pointy_flutter/android/app/release/**
+google-services.json

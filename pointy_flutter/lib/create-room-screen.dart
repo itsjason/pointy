@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:pointy_flutter/room-screen.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class CreateRoomScreen extends StatefulWidget {
   final String userId;
@@ -42,7 +43,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             style: Theme.of(context).textTheme.display1,
           ),
           SizedBox(height: 30),
-          new CreateRoomButton(textEditingController: textEditingController, widget: widget)
+          new CreateRoomButton(
+              textEditingController: textEditingController, widget: widget)
         ],
       ),
     );
@@ -61,6 +63,9 @@ class CreateRoomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ProgressDialog progressDialog =
+        ProgressDialog(context, isDismissible: false);
+
     return Row(
       children: <Widget>[
         Expanded(
@@ -81,15 +86,16 @@ class CreateRoomButton extends StatelessWidget {
                 final snackBar = SnackBar(
                     content: Text(
                         "Come on, your name is only ${userName.length} letters long??"));
-                        Scaffold.of(context).showSnackBar(snackBar);
+                Scaffold.of(context).showSnackBar(snackBar);
                 return;
               }
-
+              progressDialog.show();
               var createRoomResult = await CloudFunctions.instance
                   .getHttpsCallable(functionName: 'createRoom')
                   .call({
                 'userName': userName
               }); //Actually ignoring the name param for now?
+              progressDialog.hide();
               Map<dynamic, dynamic> returnValue = createRoomResult.data;
               String roomId = returnValue['roomId'];
               Navigator.of(context).push(MaterialPageRoute(

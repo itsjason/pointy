@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:ndialog/ndialog.dart';
 import 'package:pointy_flutter/room-screen.dart';
 
 class CreateRoomScreen extends StatefulWidget {
@@ -42,7 +43,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             style: Theme.of(context).textTheme.display1,
           ),
           SizedBox(height: 30),
-          new CreateRoomButton(textEditingController: textEditingController, widget: widget)
+          new CreateRoomButton(
+              textEditingController: textEditingController, widget: widget)
         ],
       ),
     );
@@ -81,15 +83,19 @@ class CreateRoomButton extends StatelessWidget {
                 final snackBar = SnackBar(
                     content: Text(
                         "Come on, your name is only ${userName.length} letters long??"));
-                        Scaffold.of(context).showSnackBar(snackBar);
+                Scaffold.of(context).showSnackBar(snackBar);
                 return;
               }
 
-              var createRoomResult = await CloudFunctions.instance
-                  .getHttpsCallable(functionName: 'createRoom')
-                  .call({
-                'userName': userName
-              }); //Actually ignoring the name param for now?
+              var createRoomResult = await ProgressDialog.future(context,
+                  message: Text("Creating room"),
+                  title: Text("Loading"),
+                  dismissable: false,
+                  future: CloudFunctions.instance
+                      .getHttpsCallable(functionName: 'createRoom')
+                      .call({
+                    'userName': userName
+                  })); //Actually ignoring the name param for now?
               Map<dynamic, dynamic> returnValue = createRoomResult.data;
               String roomId = returnValue['roomId'];
               Navigator.of(context).push(MaterialPageRoute(

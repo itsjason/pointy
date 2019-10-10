@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:ndialog/ndialog.dart';
 import 'package:pointy_flutter/room-screen.dart';
 
 class JoinRoomScreen extends StatefulWidget {
@@ -22,19 +23,22 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
         constraints: BoxConstraints.expand(),
         child: Column(
           children: <Widget>[
-            Text('Join Room',
-                style: Theme.of(context).textTheme.display1),
+            Text('Join Room', style: Theme.of(context).textTheme.display1),
             TextField(
                 autofocus: true,
-                style: Theme.of(context).textTheme.display1.copyWith(fontSize: 28),
+                style:
+                    Theme.of(context).textTheme.display1.copyWith(fontSize: 28),
                 controller: roomNameController,
                 decoration: InputDecoration(hintText: 'Room Name')),
             TextField(
                 autofocus: true,
-                style: Theme.of(context).textTheme.display1.copyWith(fontSize: 28),
+                style:
+                    Theme.of(context).textTheme.display1.copyWith(fontSize: 28),
                 controller: userNameController,
                 decoration: InputDecoration(hintText: 'Your Name')),
-                SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Row(
               children: <Widget>[
                 Expanded(
@@ -52,12 +56,16 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                       var roomName = roomNameController.value.text;
                       var userName = userNameController.value.text;
                       print("Joining room $roomName");
-                      var createRoomResult = await CloudFunctions.instance
-                          .getHttpsCallable(functionName: 'joinRoom')
-                          .call({
-                        'roomName': roomName,
-                        'userName': userName
-                      }); //Actually ignoring the name param for now?
+                      var createRoomResult = await ProgressDialog.future(
+                          context,
+                          dismissable: false,
+                          future: CloudFunctions.instance
+                              .getHttpsCallable(functionName: 'joinRoom')
+                              .call(
+                                  {'roomName': roomName, 'userName': userName}),
+                          message: Text("Joining the room"),
+                          title: Text(
+                              "Loading")); //Actually ignoring the name param for now?
                       print("Got result: $createRoomResult");
                       Map<dynamic, dynamic> returnValue = createRoomResult.data;
                       String roomId = returnValue['roomId'];

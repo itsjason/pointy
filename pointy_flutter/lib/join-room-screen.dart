@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:pointy_flutter/room-screen.dart';
+import 'package:pointy_flutter/preferences.dart';
 
 class JoinRoomScreen extends StatefulWidget {
   final String userId;
@@ -12,6 +13,17 @@ class JoinRoomScreen extends StatefulWidget {
 class _JoinRoomScreenState extends State<JoinRoomScreen> {
   final roomNameController = TextEditingController();
   final userNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    Preferences.getLatestUserName().then((userName) {
+      if (userName != null)
+        setState(() {
+          userNameController.text = userName;
+        });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +63,7 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                     onPressed: () async {
                       var roomName = roomNameController.value.text;
                       var userName = userNameController.value.text;
+                      Preferences.setLatestUserName(userName);
                       print("Joining room $roomName");
                       var createRoomResult = await CloudFunctions.instance
                           .getHttpsCallable(functionName: 'joinRoom')

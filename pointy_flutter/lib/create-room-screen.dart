@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:pointy_flutter/room-screen.dart';
+import 'package:pointy_flutter/preferences.dart';
 
 class CreateRoomScreen extends StatefulWidget {
   final String userId;
@@ -13,6 +14,17 @@ class CreateRoomScreen extends StatefulWidget {
 class _CreateRoomScreenState extends State<CreateRoomScreen> {
   final textEditingController = TextEditingController();
   final scaffoldKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    Preferences.getLatestUserName().then((userName) {
+      if (userName != null)
+        setState(() {
+          textEditingController.text = userName;
+        });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +97,7 @@ class CreateRoomButton extends StatelessWidget {
                 return;
               }
 
+              Preferences.setLatestUserName(userName);
               var createRoomResult = await CloudFunctions.instance
                   .getHttpsCallable(functionName: 'createRoom')
                   .call({

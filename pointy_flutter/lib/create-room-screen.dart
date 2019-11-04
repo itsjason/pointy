@@ -13,6 +13,7 @@ class CreateRoomScreen extends StatefulWidget {
 class _CreateRoomScreenState extends State<CreateRoomScreen> {
   final textEditingController = TextEditingController();
   final scaffoldKey = GlobalKey();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -36,25 +37,61 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           TextField(
+            enabled: !isLoading,
             controller: textEditingController,
             decoration: InputDecoration(hintText: 'What is your name?'),
             autofocus: true,
             style: Theme.of(context).textTheme.display1,
           ),
           SizedBox(height: 30),
-          new CreateRoomButton(textEditingController: textEditingController, widget: widget)
+          isLoading
+              ? _loadingButton()
+              : CreateRoomButton(
+                  textEditingController: textEditingController,
+                  widget: widget,
+                  onLoading: () => setState(() => isLoading = true),
+                )
         ],
       ),
     );
   }
+
+  Widget _loadingButton() => Row(
+        children: <Widget>[
+          Expanded(
+            child: RaisedButton(
+              color: Colors.blueAccent,
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Creating the room',
+                    style: Theme.of(context)
+                        .textTheme
+                        .button
+                        .copyWith(fontSize: 20, color: Colors.white),
+                  ),
+                  SizedBox(width: 10,),
+                  CircularProgressIndicator()
+                ],
+              ),
+              onPressed: null,
+            ),
+          ),
+        ],
+      );
 }
 
 class CreateRoomButton extends StatelessWidget {
-  const CreateRoomButton({
-    Key key,
-    @required this.textEditingController,
-    @required this.widget,
-  }) : super(key: key);
+  final Function onLoading;
+
+  const CreateRoomButton(
+      {Key key,
+      @required this.textEditingController,
+      @required this.widget,
+      @required this.onLoading})
+      : super(key: key);
 
   final TextEditingController textEditingController;
   final CreateRoomScreen widget;
@@ -81,10 +118,11 @@ class CreateRoomButton extends StatelessWidget {
                 final snackBar = SnackBar(
                     content: Text(
                         "Come on, your name is only ${userName.length} letters long??"));
-                        Scaffold.of(context).showSnackBar(snackBar);
+                Scaffold.of(context).showSnackBar(snackBar);
                 return;
               }
 
+              onLoading();
               var createRoomResult = await CloudFunctions.instance
                   .getHttpsCallable(functionName: 'createRoom')
                   .call({
